@@ -1,0 +1,10 @@
+parameters:
+	ignoreErrors:
+		-
+			message: "#^Undefined variable\\: \\$this$#"
+			count: 1
+			path: routes/console.php
+		-
+			message: "#^Called \\'pluck\\' on Laravel collection\\, but could have been retrieved as a query\\.$#"
+			count: 6
+			path: app/Services/CatalogService.php

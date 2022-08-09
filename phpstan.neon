@@ -1,0 +1,70 @@
+includes:
+    - ./vendor/nunomaduro/larastan/extension.neon
+    - vendor/phpstan/phpstan/conf/bleedingEdge.neon
+    - vendor/phpstan/phpstan-phpunit/extension.neon
+    - vendor/phpstan/phpstan-phpunit/rules.neon
+    - phpstan-baseline.neon
+rules:
+    - PHPStan\Rules\DisallowedConstructs\DisallowedImplicitArrayCreationRule
+    - PHPStan\Rules\ForeachLoop\OverwriteVariablesWithForeachRule
+    - PHPStan\Rules\Methods\WrongCaseOfInheritedMethodRule
+    - PHPStan\Rules\Operators\OperandInArithmeticPostDecrementRule
+    - PHPStan\Rules\Operators\OperandInArithmeticPostIncrementRule
+    - PHPStan\Rules\Operators\OperandInArithmeticPreDecrementRule
+    - PHPStan\Rules\Operators\OperandInArithmeticPreIncrementRule
+    - PHPStan\Rules\Operators\OperandsInArithmeticAdditionRule
+    - PHPStan\Rules\Operators\OperandsInArithmeticDivisionRule
+    - PHPStan\Rules\Operators\OperandsInArithmeticExponentiationRule
+    - PHPStan\Rules\Operators\OperandsInArithmeticModuloRule
+    - PHPStan\Rules\Operators\OperandsInArithmeticMultiplicationRule
+    - PHPStan\Rules\Operators\OperandsInArithmeticSubtractionRule
+    - PHPStan\Rules\StrictCalls\DynamicCallOnStaticMethodsRule
+    - PHPStan\Rules\StrictCalls\StrictFunctionCallsRule
+    - PHPStan\Rules\SwitchConditions\MatchingTypeInSwitchCaseConditionRule
+    - PHPStan\Rules\VariableVariables\VariableMethodCallRule
+    - PHPStan\Rules\VariableVariables\VariableStaticMethodCallRule
+    - PHPStan\Rules\VariableVariables\VariableStaticPropertyFetchRule
+    - PHPStan\Rules\VariableVariables\VariableVariablesRule
+    - App\PhpStan\CatchThrowableInspection
+    - App\PhpStan\InsaneComparisonRule
+services:
+    - PHPStan\Rules\Operators\OperatorRuleHelper
+parameters:
+    tmpDir: /tmp/phpstan
+    paths:
+        - app/
+        - bootstrap/app.php
+        - config/
+        - database/
+        - routes/
+        - tests/
+    excludePaths:
+    scanDirectories:
+
+    # The level 8 is the highest level
+    level: 5
+
+    checkMissingIterableValueType: false
+    reportUnmatchedIgnoredErrors: false
+    polluteScopeWithLoopInitialAssignments: false
+    polluteScopeWithAlwaysIterableForeach: false
+    checkAlwaysTrueCheckTypeFunctionCall: false
+    checkAlwaysTrueInstanceof: true
+    checkAlwaysTrueStrictComparison: true
+    checkExplicitMixedMissingReturn: true
+    checkFunctionNameCase: true
+    reportMaybesInMethodSignatures: false
+    reportStaticMethodSignatures: true
+    inferPrivatePropertyTypeFromConstructor: true
+    treatPhpDocTypesAsCertain: true
+    checkInternalClassCaseSensitivity: true
+
+    ignoreErrors:
+        - '#Unsafe usage of new static#'
+        - '#Dynamic call to static method Illuminate\\Database\\Eloquent\\(?:Builder|(?:Relations\\(?:[A-z]+)))<(?:[\\A-z,]+)>::(?:[A-z]+)\(\)#'
+        - path: tests/
+          message: "#Called '(?:[A-z]+)' on Laravel collection, but could have been retrieved as a query#"
+        - path: tests/
+          message: '#Dynamic call to static method PHPUnit\\Framework\\Assert::(?:[A-z]+)\(\)#'
+        - path: app/Models/
+          message: '#PHPDoc tag @mixin contains unknown class App\\Models\\IdeHelper(?:[A-z]+)#'

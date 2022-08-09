@@ -1,0 +1,80 @@
+version: '3.8'
+
+services:
+  # Nginx
+  nginx:
+    build:
+      context: ./.docker/nginx
+      args:
+        IMAGE_NAME: nginx
+    volumes:
+      - "./public:/var/www/public:ro"
+      - "./.docker/nginx/nginx.dev.conf:/etc/nginx/nginx.conf:ro"
+    expose:
+      - "${NGINX_EXPOSE_PORT}"
+    depends_on:
+      - php
+    ports:
+      - ${NGINX_PORT}:80
+      - ${NGINX_SSL_PORT}:443
+    networks:
+      - app-network
+
+  # PHP-FPM
+  php:
+    build:
+      context: ./.docker/php
+      target: local
+      args:
+        IMAGE_NAME: php
+    volumes:
+      - .:/var/www:cached
+      - ~/.composer-docker/cache:/var/composer-cache:delegated
+    expose:
+      - "${PHP_FPM_EXPOSE_PORT}"
+    environment:
+      # Для включения и настройки отладчика xdebug см. README.md
+      XDEBUG_CONFIG: "${XDEBUG_CONFIG:-client_host=localhost}"
+      XDEBUG_MODE: "${XDEBUG_MODE:-develop}"
+      PHP_IDE_CONFIG: serverName=localhost
+    depends_on:
+      - db
+    networks:
+      - app-network
+
+  # Очередь отложенных сообщений
+#  queue:
+#    restart: unless-stopped
+#    build:
+#      context: ./.docker/php
+#      target: local
+#      args:
+#        IMAGE_NAME: php
+#    volumes:
+#      - .:/var/www:cached
+#    command: 'php artisan queue:work'
+#    depends_on:
+#      - db
+#    networks:
+#      - app-network
+
+  # Postgres
+  db:
+    build:
+      context: ./.docker/postgresql
+      args:
+        IMAGE_NAME: postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "${PG_PORT}:${PG_EXPOSE_PORT}"
+    expose:
+      - "${PG_EXPOSE_PORT}"
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
